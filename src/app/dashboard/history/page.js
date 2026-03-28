@@ -26,8 +26,8 @@ export default function HistoryPage() {
     <div className="space-y-6">
       <h1 className="text-3xl font-bold text-gray-800">All History</h1>
 
-      <div className="bg-white rounded-xl shadow-md p-4">
-        <div className="flex flex-col md:flex-row gap-4">
+      <div className="bg-white text-black rounded-xl shadow-md p-4">
+        <div className="flex text-black flex-col md:flex-row gap-4">
           <input
             type="text"
             value={search}

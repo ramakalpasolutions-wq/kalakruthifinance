@@ -48,7 +48,7 @@ export default function LoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-4 py-3 border text-black border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="Enter your email"
               required
             />
@@ -60,7 +60,7 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-4 py-3 text-black border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="Enter your password"
               required
             />
@@ -75,12 +75,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="mt-6 p-4 bg-slate-50 rounded-lg border border-slate-100">
-          <p className="text-xs text-slate-500 text-center">
-            <span className="font-medium">Demo Credentials:</span><br />
-            Email: admin@expense.com | Password: admin123
-          </p>
-        </div>
+        
       </div>
     </div>
   )

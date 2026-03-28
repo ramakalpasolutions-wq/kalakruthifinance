@@ -31,7 +31,7 @@ export default function StatsCard({ title, amount, icon, variant, subtitle, isNu
       <div className="flex justify-between items-start">
         <div className="flex-1">
           <p className="text-sm font-medium text-slate-500 uppercase tracking-wide">{title}</p>
-          <p className={`text-2xl font-bold mt-2 ${amountColor[variant]}`}>
+          <p className={`text-2xl text-black font-bold mt-2 ${amountColor[variant]}`}>
             {isNumber ? amount : `₹${(amount || 0).toLocaleString()}`}
           </p>
           {subtitle && (

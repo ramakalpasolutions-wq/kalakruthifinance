@@ -67,16 +67,16 @@ export default function ProjectsPage() {
       <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1 relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
+            <span className="absolute left-3 text-black top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search projects..."
-              className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full pl-10 pr-4 py-2 border text-black border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
-          <div className="flex gap-2">
+          <div className="flex  gap-2 ">
             {[
               { value: 'all', label: 'All' },
               { value: 'pending', label: 'Pending' },

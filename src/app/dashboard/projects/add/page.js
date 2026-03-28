@@ -59,7 +59,7 @@ export default function AddProjectPage() {
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full p-3 border text-black border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="Enter project title"
               required
             />
@@ -73,7 +73,7 @@ export default function AddProjectPage() {
             <textarea
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full p-3 border text-black border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               rows="4"
               placeholder="Add project details..."
             />
@@ -84,7 +84,7 @@ export default function AddProjectPage() {
             <label className="block text-sm font-medium text-slate-700 mb-2">
               Priority
             </label>
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-4 text-black gap-3">
               {[
                 { value: 'low', label: 'Low', color: 'border-slate-400 bg-slate-50' },
                 { value: 'medium', label: 'Medium', color: 'border-sky-500 bg-sky-50' },
@@ -116,7 +116,7 @@ export default function AddProjectPage() {
               <select
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full p-3 border border-slate-200 text-black rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               >
                 {categories.map((cat) => (
                   <option key={cat} value={cat}>{cat}</option>
@@ -131,7 +131,7 @@ export default function AddProjectPage() {
                 type="date"
                 value={formData.dueDate}
                 onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-                className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full p-3 border border-slate-200 text-black rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
           </div>
