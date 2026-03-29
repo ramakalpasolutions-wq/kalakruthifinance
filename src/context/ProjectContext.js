@@ -94,7 +94,13 @@ export function ProjectProvider({ children }) {
     inProgress: projects.filter(p => p.status === 'in-progress').length,
     completed: projects.filter(p => p.status === 'completed').length,
     urgent: projects.filter(p => p.priority === 'urgent' && p.status !== 'completed').length,
-    high: projects.filter(p => p.priority === 'high' && p.status !== 'completed').length
+    high: projects.filter(p => p.priority === 'high' && p.status !== 'completed').length,
+    totalAmount: projects.reduce((sum, p) => sum + (p.amount || 0), 0),
+    totalPaid: projects.reduce((sum, p) => sum + (p.amountPaid || 0), 0),
+    totalPending: projects.reduce((sum, p) => sum + ((p.amount || 0) - (p.amountPaid || 0)), 0),
+    photoCount: projects.filter(p => p.workType === 'photo').length,
+    videoCount: projects.filter(p => p.workType === 'video').length,
+    bothCount: projects.filter(p => p.workType === 'both').length
   }), [projects])
 
   const value = {
@@ -123,7 +129,11 @@ export const useProjects = () => {
     return {
       projects: [],
       loading: true,
-      stats: { total: 0, pending: 0, inProgress: 0, completed: 0, urgent: 0, high: 0 },
+      stats: { 
+        total: 0, pending: 0, inProgress: 0, completed: 0, 
+        urgent: 0, high: 0, totalAmount: 0, totalPaid: 0, totalPending: 0,
+        photoCount: 0, videoCount: 0, bothCount: 0
+      },
       pendingProjects: [],
       completedProjects: []
     }

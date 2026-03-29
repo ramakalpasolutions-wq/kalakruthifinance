@@ -38,6 +38,7 @@ export async function GET(request) {
 
     return NextResponse.json({ projects })
   } catch (error) {
+    console.error('GET Projects Error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
@@ -53,11 +54,45 @@ export async function POST(request) {
     await connectDB()
 
     const data = await request.json()
+    
+    // Log received data for debugging
+    console.log('Received project data:', data)
 
-    const project = await Project.create(data)
+    // Ensure amount fields are numbers
+    const projectData = {
+      title: data.title,
+      description: data.description || '',
+      clientName: data.clientName || '',
+      workType: data.workType || 'photo',
+      amount: Number(data.amount) || 0,
+      amountPaid: Number(data.amountPaid) || 0,
+      priority: data.priority || 'medium',
+      status: data.status || 'pending',
+      paymentStatus: data.paymentStatus || 'unpaid',
+      category: data.category || 'General',
+      dueDate: data.dueDate || null
+    }
+
+    // Calculate payment status
+    if (projectData.amount > 0) {
+      if (projectData.amountPaid >= projectData.amount) {
+        projectData.paymentStatus = 'paid'
+      } else if (projectData.amountPaid > 0) {
+        projectData.paymentStatus = 'partial'
+      } else {
+        projectData.paymentStatus = 'unpaid'
+      }
+    }
+
+    console.log('Saving project data:', projectData)
+
+    const project = await Project.create(projectData)
+
+    console.log('Saved project:', project)
 
     return NextResponse.json({ project }, { status: 201 })
   } catch (error) {
+    console.error('POST Project Error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

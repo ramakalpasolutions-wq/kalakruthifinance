@@ -34,6 +34,7 @@ export async function GET(request, { params }) {
 
     return NextResponse.json({ project })
   } catch (error) {
+    console.error('GET Project Error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
@@ -51,16 +52,48 @@ export async function PUT(request, { params }) {
     const { id } = await params
     const data = await request.json()
 
-    // If marking as completed, set completedAt
-    if (data.status === 'completed') {
-      data.completedAt = new Date()
-    } else if (data.status && data.status !== 'completed') {
-      data.completedAt = null
+    console.log('Update project ID:', id)
+    console.log('Update data received:', data)
+
+    // Prepare update data
+    const updateData = { ...data }
+
+    // Ensure amount fields are numbers
+    if (data.amount !== undefined) {
+      updateData.amount = Number(data.amount) || 0
     }
+    if (data.amountPaid !== undefined) {
+      updateData.amountPaid = Number(data.amountPaid) || 0
+    }
+
+    // Calculate payment status
+    if (updateData.amount !== undefined || updateData.amountPaid !== undefined) {
+      const amount = updateData.amount ?? 0
+      const amountPaid = updateData.amountPaid ?? 0
+      
+      if (amount > 0) {
+        if (amountPaid >= amount) {
+          updateData.paymentStatus = 'paid'
+        } else if (amountPaid > 0) {
+          updateData.paymentStatus = 'partial'
+        } else {
+          updateData.paymentStatus = 'unpaid'
+        }
+      }
+    }
+
+    // Handle completed status
+    if (data.status === 'completed') {
+      updateData.completedAt = new Date()
+    } else if (data.status && data.status !== 'completed') {
+      updateData.completedAt = null
+    }
+
+    console.log('Final update data:', updateData)
 
     const project = await Project.findByIdAndUpdate(
       id,
-      data,
+      updateData,
       { new: true, runValidators: true }
     )
 
@@ -68,8 +101,11 @@ export async function PUT(request, { params }) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 })
     }
 
+    console.log('Updated project:', project)
+
     return NextResponse.json({ project })
   } catch (error) {
+    console.error('PUT Project Error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
@@ -93,6 +129,7 @@ export async function DELETE(request, { params }) {
 
     return NextResponse.json({ message: 'Project deleted' })
   } catch (error) {
+    console.error('DELETE Project Error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

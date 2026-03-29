@@ -46,7 +46,7 @@ export default function Sidebar() {
           badge: pendingProjects?.length || 0,
           badgeColor: 'bg-amber-500'
         },
-        { href: '/dashboard/projects/add', label: 'Add Project', icon: '➕' },
+        // { href: '/dashboard/projects/add', label: 'Add Project', icon: '➕' },
       ]
     },
     {
