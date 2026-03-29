@@ -83,6 +83,8 @@ export default function Sidebar() {
           badge: billStats?.total || 0,
           badgeColor: 'bg-slate-500'
         },
+
+        
         { 
           href: '/dashboard/bills/upcoming', 
           label: 'Upcoming', 
