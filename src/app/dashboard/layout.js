@@ -3,6 +3,8 @@
 import { useAuth } from '@/context/AuthContext'
 import { TransactionProvider } from '@/context/TransactionContext'
 import { ProjectProvider } from '@/context/ProjectContext'
+import { BillProvider } from '@/context/BillContext'
+import { EMIProvider } from '@/context/EMIContext'
 import Sidebar from '@/components/Sidebar'
 
 export default function DashboardLayout({ children }) {
@@ -19,14 +21,18 @@ export default function DashboardLayout({ children }) {
   return (
     <TransactionProvider>
       <ProjectProvider>
-        <div className="flex min-h-screen bg-slate-50">
-          <Sidebar />
-          <main className="flex-1 p-6 overflow-auto">
-            <div className="max-w-6xl mx-auto">
-              {children}
+        <BillProvider>
+          <EMIProvider>
+            <div className="flex min-h-screen bg-slate-50">
+              <Sidebar />
+              <main className="flex-1 p-6 overflow-auto">
+                <div className="max-w-6xl mx-auto">
+                  {children}
+                </div>
+              </main>
             </div>
-          </main>
-        </div>
+          </EMIProvider>
+        </BillProvider>
       </ProjectProvider>
     </TransactionProvider>
   )
