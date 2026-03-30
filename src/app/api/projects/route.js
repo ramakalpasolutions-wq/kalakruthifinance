@@ -16,7 +16,6 @@ const isAuthenticated = async () => {
   }
 }
 
-// GET all projects
 export async function GET(request) {
   try {
     const authenticated = await isAuthenticated()
@@ -43,7 +42,6 @@ export async function GET(request) {
   }
 }
 
-// POST new project
 export async function POST(request) {
   try {
     const authenticated = await isAuthenticated()
@@ -54,41 +52,51 @@ export async function POST(request) {
     await connectDB()
 
     const data = await request.json()
-    
-    // Log received data for debugging
+
     console.log('Received project data:', data)
 
-    // Ensure amount fields are numbers
     const projectData = {
       title: data.title,
       description: data.description || '',
-      clientName: data.clientName || '',
+      location: data.location || '',
       workType: data.workType || 'photo',
       amount: Number(data.amount) || 0,
+      advanceAmount: Number(data.advanceAmount) || 0,
+      advanceDate: data.advanceDate || null,
       amountPaid: Number(data.amountPaid) || 0,
+      // Image Selection Fields
+      imagesSent: data.imagesSent || false,
+      imagesSentDate: data.imagesSentDate || null,
+      totalImagesSent: Number(data.totalImagesSent) || 0,
+      imagesSelected: data.imagesSelected || false,
+      imagesSelectedDate: data.imagesSelectedDate || null,
+      selectedImagesCount: Number(data.selectedImagesCount) || 0,
+      imagesDelivered: data.imagesDelivered || false,
+      imagesDeliveredDate: data.imagesDeliveredDate || null,
+      selectionNotes: data.selectionNotes || '',
+      // Other fields
       priority: data.priority || 'medium',
       status: data.status || 'pending',
       paymentStatus: data.paymentStatus || 'unpaid',
       category: data.category || 'General',
-      dueDate: data.dueDate || null
+      dueDate: data.dueDate || null,
+      eventDate: data.eventDate || null
     }
 
     // Calculate payment status
     if (projectData.amount > 0) {
       if (projectData.amountPaid >= projectData.amount) {
         projectData.paymentStatus = 'paid'
-      } else if (projectData.amountPaid > 0) {
+      } else if (projectData.amountPaid > projectData.advanceAmount) {
         projectData.paymentStatus = 'partial'
+      } else if (projectData.advanceAmount > 0) {
+        projectData.paymentStatus = 'advance'
       } else {
         projectData.paymentStatus = 'unpaid'
       }
     }
 
-    console.log('Saving project data:', projectData)
-
     const project = await Project.create(projectData)
-
-    console.log('Saved project:', project)
 
     return NextResponse.json({ project }, { status: 201 })
   } catch (error) {

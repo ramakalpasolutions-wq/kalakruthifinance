@@ -11,20 +11,24 @@ export default function AddProjectPage() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    clientName: '',
+    location: '',
     workType: 'photo',
     amount: '',
+    advanceAmount: '',
+    advanceDate: '',
     priority: 'medium',
-    category: 'General',
-    dueDate: ''
+    category: 'Wedding',
+    dueDate: '',
+    eventDate: '',
+    totalImages: ''
   })
 
-  const categories = ['General', 'Wedding', 'Event', 'Corporate', 'Portrait', 'Product', 'Commercial', 'Personal', 'Other']
+  const categories = ['Wedding', 'Pre-Wedding', 'Event', 'Corporate', 'Portrait', 'Product', 'Commercial', 'Birthday', 'Engagement', 'Other']
 
   const workTypes = [
-    { value: 'photo', label: 'Photo', icon: '📷', desc: 'Photography work' },
-    { value: 'video', label: 'Video', icon: '🎬', desc: 'Videography work' },
-    { value: 'both', label: 'Photo + Video', icon: '📷🎬', desc: 'Both photo & video' }
+    { value: 'photo', label: 'Photo', icon: '📷', desc: 'Photography only' },
+    { value: 'video', label: 'Video', icon: '🎬', desc: 'Videography only' },
+    { value: 'both', label: 'Photo + Video', icon: '📷🎬', desc: 'Both services' }
   ]
 
   const handleSubmit = async (e) => {
@@ -38,21 +42,39 @@ export default function AddProjectPage() {
     setLoading(true)
     
     try {
-      // Parse amount as number
       const amountValue = formData.amount ? parseFloat(formData.amount) : 0
+      const advanceValue = formData.advanceAmount ? parseFloat(formData.advanceAmount) : 0
       
+      // Calculate payment status
+      let paymentStatus = 'unpaid'
+      let amountPaid = 0
+      
+      if (advanceValue > 0) {
+        amountPaid = advanceValue
+        if (advanceValue >= amountValue) {
+          paymentStatus = 'paid'
+        } else {
+          paymentStatus = 'advance'
+        }
+      }
+
       const projectData = {
         title: formData.title.trim(),
         description: formData.description.trim(),
-        clientName: formData.clientName.trim(),
+        location: formData.location.trim(),
         workType: formData.workType,
         amount: amountValue,
-        amountPaid: 0,
+        advanceAmount: advanceValue,
+        advanceDate: formData.advanceDate || null,
+        amountPaid: amountPaid,
         priority: formData.priority,
         category: formData.category,
         dueDate: formData.dueDate || null,
+        eventDate: formData.eventDate || null,
+        totalImages: parseInt(formData.totalImages) || 0,
         status: 'pending',
-        paymentStatus: 'unpaid'
+        paymentStatus: paymentStatus,
+        selectionStatus: 'not-sent'
       }
 
       console.log('Submitting project:', projectData)
@@ -69,11 +91,13 @@ export default function AddProjectPage() {
     }
   }
 
+  const remainingAmount = (parseFloat(formData.amount) || 0) - (parseFloat(formData.advanceAmount) || 0)
+
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-slate-800">Add New Project</h1>
-        <p className="text-slate-500 text-sm mt-1">Create a new work project</p>
+        <p className="text-slate-500 text-sm mt-1">Create a new photography/videography project</p>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
@@ -89,22 +113,35 @@ export default function AddProjectPage() {
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="e.g., Wedding Shoot - Sharma Family"
+              placeholder="e.g., Sharma Wedding, Gupta Engagement"
               required
             />
           </div>
 
-          {/* Client Name */}
+          {/* Location (Changed from Client Name) */}
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
-              Client Name
+              📍 Location
             </label>
             <input
               type="text"
-              value={formData.clientName}
-              onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
+              value={formData.location}
+              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
               className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="Enter client name"
+              placeholder="e.g., Delhi, Mumbai, Jaipur Palace"
+            />
+          </div>
+
+          {/* Event Date */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              📅 Event Date
+            </label>
+            <input
+              type="date"
+              value={formData.eventDate}
+              onChange={(e) => setFormData({ ...formData, eventDate: e.target.value })}
+              className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
 
@@ -136,7 +173,7 @@ export default function AddProjectPage() {
           {/* Total Amount */}
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
-              Total Amount (₹)
+              💰 Total Amount (₹)
             </label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">₹</span>
@@ -150,7 +187,72 @@ export default function AddProjectPage() {
                 placeholder="0"
               />
             </div>
-            <p className="text-xs text-slate-400 mt-1">Total project cost / payment expected</p>
+          </div>
+
+          {/* Advance Payment Section */}
+          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 space-y-4">
+            <h3 className="font-semibold text-emerald-800 flex items-center gap-2">
+              💵 Advance Payment
+            </h3>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Advance Amount (₹)
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">₹</span>
+                  <input
+                    type="number"
+                    step="1"
+                    min="0"
+                    value={formData.advanceAmount}
+                    onChange={(e) => setFormData({ ...formData, advanceAmount: e.target.value })}
+                    className="w-full p-3 pl-8 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white"
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Advance Date
+                </label>
+                <input
+                  type="date"
+                  value={formData.advanceDate}
+                  onChange={(e) => setFormData({ ...formData, advanceDate: e.target.value })}
+                  className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white"
+                />
+              </div>
+            </div>
+
+            {/* Remaining Amount Preview */}
+            {formData.amount && (
+              <div className="flex justify-between items-center pt-2 border-t border-emerald-200">
+                <span className="text-sm text-emerald-700">Remaining Amount:</span>
+                <span className={`font-bold ${remainingAmount > 0 ? 'text-amber-600' : 'text-emerald-600'}`}>
+                  ₹{remainingAmount.toLocaleString()}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Total Images (for selection tracking) */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              🖼️ Total Images/Deliverables (Optional)
+            </label>
+            <input
+              type="number"
+              min="0"
+              value={formData.totalImages}
+              onChange={(e) => setFormData({ ...formData, totalImages: e.target.value })}
+              className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="e.g., 500"
+            />
+            <p className="text-xs text-slate-400 mt-1">
+              Track client image selection progress
+            </p>
           </div>
 
           {/* Description */}
@@ -162,8 +264,8 @@ export default function AddProjectPage() {
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              rows="4"
-              placeholder="Add details like location, special requirements, deliverables..."
+              rows="3"
+              placeholder="Add details like venue, special requirements, deliverables..."
             />
           </div>
 
@@ -214,7 +316,7 @@ export default function AddProjectPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Due Date
+                Delivery Due Date
               </label>
               <input
                 type="date"
@@ -235,16 +337,21 @@ export default function AddProjectPage() {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-slate-800">{formData.title}</h3>
-                  {formData.clientName && (
-                    <p className="text-sm text-slate-500">Client: {formData.clientName}</p>
+                  {formData.location && (
+                    <p className="text-sm text-slate-500">📍 {formData.location}</p>
                   )}
-                  <div className="flex items-center gap-3 mt-2 text-sm">
+                  <div className="flex items-center gap-3 mt-2 text-sm flex-wrap">
                     <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded text-xs font-medium">
                       {formData.workType === 'photo' ? 'Photo' : formData.workType === 'video' ? 'Video' : 'Photo + Video'}
                     </span>
                     {formData.amount && (
-                      <span className="text-emerald-600 font-semibold">
+                      <span className="text-slate-700 font-semibold">
                         ₹{parseFloat(formData.amount).toLocaleString()}
+                      </span>
+                    )}
+                    {formData.advanceAmount && parseFloat(formData.advanceAmount) > 0 && (
+                      <span className="text-emerald-600 font-medium">
+                        (Adv: ₹{parseFloat(formData.advanceAmount).toLocaleString()})
                       </span>
                     )}
                   </div>

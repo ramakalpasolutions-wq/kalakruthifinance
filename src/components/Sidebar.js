@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
@@ -15,7 +16,31 @@ export default function Sidebar() {
   const { transactions, stats } = useTransactions()
   const { pendingProjects, stats: projectStats } = useProjects()
   const { stats: billStats } = useBills()
-  const { stats: emiStats, emisDueThisMonth } = useEmis()
+  const { stats: emiStats } = useEmis()
+
+  // Collapsed state for each section
+  const [collapsed, setCollapsed] = useState({
+    main: false,
+    projects: false,
+    emi: false,
+    bills: false,
+    money: false
+  })
+
+  // Load collapsed state from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('sidebarCollapsed')
+    if (saved) {
+      setCollapsed(JSON.parse(saved))
+    }
+  }, [])
+
+  // Save collapsed state to localStorage
+  const toggleSection = (section) => {
+    const newState = { ...collapsed, [section]: !collapsed[section] }
+    setCollapsed(newState)
+    localStorage.setItem('sidebarCollapsed', JSON.stringify(newState))
+  }
 
   // Count pending people
   const pendingPeopleCount = useMemo(() => {
@@ -28,13 +53,15 @@ export default function Sidebar() {
 
   const menuItems = [
     { 
-      section: 'Main',
+      section: 'main',
+      label: 'Main',
       items: [
         { href: '/dashboard', label: 'Dashboard', icon: '📊' },
       ]
     },
     {
-      section: 'Projects',
+      section: 'projects',
+      label: 'Projects',
       items: [
         { 
           href: '/dashboard/projects', 
@@ -50,11 +77,12 @@ export default function Sidebar() {
           badge: pendingProjects?.length || 0,
           badgeColor: 'bg-amber-500'
         },
-        // { href: '/dashboard/projects/add', label: 'Add Project', icon: '➕' },
+        { href: '/dashboard/projects/add', label: 'Add Project', icon: '➕' },
       ]
     },
     {
-      section: 'EMI Tracker',
+      section: 'emi',
+      label: 'EMI Tracker',
       items: [
         { 
           href: '/dashboard/emi', 
@@ -70,11 +98,12 @@ export default function Sidebar() {
           badge: emiStats?.dueThisMonth || 0,
           badgeColor: 'bg-amber-500'
         },
-        // { href: '/dashboard/emi/add', label: 'Add EMI', icon: '➕' },
+        { href: '/dashboard/emi/add', label: 'Add EMI', icon: '➕' },
       ]
     },
     {
-      section: 'Bills',
+      section: 'bills',
+      label: 'Bills',
       items: [
         { 
           href: '/dashboard/bills', 
@@ -83,8 +112,6 @@ export default function Sidebar() {
           badge: billStats?.total || 0,
           badgeColor: 'bg-slate-500'
         },
-
-        
         { 
           href: '/dashboard/bills/upcoming', 
           label: 'Upcoming', 
@@ -99,11 +126,12 @@ export default function Sidebar() {
           badge: billStats?.overdue || 0,
           badgeColor: 'bg-rose-500'
         },
-        // { href: '/dashboard/bills/add', label: 'Add Bill', icon: '➕' },
+        { href: '/dashboard/bills/add', label: 'Add Bill', icon: '➕' },
       ]
     },
     {
-      section: 'Money',
+      section: 'money',
+      label: 'Money',
       items: [
         { href: '/dashboard/add-transaction', label: 'Add Entry', icon: '💳' },
         { 
@@ -131,7 +159,7 @@ export default function Sidebar() {
             <span className="text-xl">📋</span>
           </div>
           <div>
-            <h1 className="font-bold text-lg">TrackIt</h1>
+            <h1 className="font-bold text-lg">Kalakruthi</h1>
             <p className="text-xs text-slate-400">All-in-One Tracker</p>
           </div>
         </div>
@@ -150,54 +178,76 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {/* EMI Due Alert */}
-      {emiStats?.dueThisMonth > 0 && (
-        <div className="mx-3 mt-3 p-3 bg-indigo-500/20 border border-indigo-500/30 rounded-lg">
-          <div className="flex items-center gap-2">
-            <span>🏦</span>
-            <div>
-              <p className="text-xs font-medium text-indigo-300">
-                {emiStats.dueThisMonth} EMI{emiStats.dueThisMonth > 1 ? 's' : ''} Due
-              </p>
-              <p className="text-xs text-indigo-400">
-                ₹{emiStats.dueThisMonthAmount.toLocaleString()}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Collapse All / Expand All */}
+      <div className="px-3 pt-3 flex gap-2">
+        <button
+          onClick={() => {
+            const allCollapsed = { main: true, projects: true, emi: true, bills: true, money: true }
+            setCollapsed(allCollapsed)
+            localStorage.setItem('sidebarCollapsed', JSON.stringify(allCollapsed))
+          }}
+          className="flex-1 py-1.5 text-xs font-medium text-slate-400 hover:text-white bg-slate-700/50 hover:bg-slate-700 rounded transition"
+        >
+          Collapse All
+        </button>
+        <button
+          onClick={() => {
+            const allExpanded = { main: false, projects: false, emi: false, bills: false, money: false }
+            setCollapsed(allExpanded)
+            localStorage.setItem('sidebarCollapsed', JSON.stringify(allExpanded))
+          }}
+          className="flex-1 py-1.5 text-xs font-medium text-slate-400 hover:text-white bg-slate-700/50 hover:bg-slate-700 rounded transition"
+        >
+          Expand All
+        </button>
+      </div>
 
       {/* Navigation */}
       <nav className="flex-1 p-3 overflow-y-auto">
         {menuItems.map((section) => (
-          <div key={section.section} className="mb-4">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3 mb-2">
-              {section.section}
-            </p>
-            <ul className="space-y-1">
-              {section.items.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className={`flex items-center justify-between px-3 py-2.5 rounded-lg transition-all duration-200 ${
-                      pathname === item.href
-                        ? 'bg-indigo-600 text-white shadow-md'
-                        : 'text-slate-300 hover:bg-slate-700 hover:text-white'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-base">{item.icon}</span>
-                      <span className="text-sm font-medium">{item.label}</span>
-                    </div>
-                    {item.badge !== undefined && item.badge > 0 && (
-                      <span className={`${item.badgeColor || 'bg-slate-500'} text-white text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center`}>
-                        {item.badge}
-                      </span>
-                    )}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+          <div key={section.section} className="mb-2">
+            {/* Section Header - Clickable */}
+            <button
+              onClick={() => toggleSection(section.section)}
+              className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider hover:text-slate-200 transition group"
+            >
+              <span>{section.label}</span>
+              <span className={`transform transition-transform duration-200 ${
+                collapsed[section.section] ? '-rotate-90' : 'rotate-0'
+              }`}>
+                ▼
+              </span>
+            </button>
+
+            {/* Section Items - Collapsible */}
+            <div className={`overflow-hidden transition-all duration-300 ${
+              collapsed[section.section] ? 'max-h-0 opacity-0' : 'max-h-96 opacity-100'
+            }`}>
+              <ul className="space-y-1 mt-1">
+                {section.items.map((item) => (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      className={`flex items-center justify-between px-3 py-2.5 rounded-lg transition-all duration-200 ${
+                        pathname === item.href
+                          ? 'bg-indigo-600 text-white shadow-md'
+                          : 'text-slate-300 hover:bg-slate-700 hover:text-white'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-base">{item.icon}</span>
+                        <span className="text-sm font-medium">{item.label}</span>
+                      </div>
+                      {item.badge !== undefined && item.badge > 0 && (
+                        <span className={`${item.badgeColor || 'bg-slate-500'} text-white text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center`}>
+                          {item.badge}
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         ))}
       </nav>
@@ -205,19 +255,25 @@ export default function Sidebar() {
       {/* Quick Stats */}
       <div className="p-4 border-t border-slate-700 bg-slate-900/50">
         <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
-          Monthly EMI
+          Quick Summary
         </p>
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span className="text-slate-400">Total EMI/Month</span>
+            <span className="text-slate-400">Monthly EMI</span>
             <span className="text-indigo-400 font-medium">
               ₹{(emiStats?.totalMonthlyEmi || 0).toLocaleString()}
             </span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-slate-400">Remaining</span>
-            <span className="text-amber-400 font-medium">
-              ₹{(emiStats?.totalRemaining || 0).toLocaleString()}
+            <span className="text-slate-400">To Receive</span>
+            <span className="text-emerald-400 font-medium">
+              ₹{(stats?.pendingToReceive || 0).toLocaleString()}
+            </span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-slate-400">To Pay</span>
+            <span className="text-rose-400 font-medium">
+              ₹{(stats?.pendingToPay || 0).toLocaleString()}
             </span>
           </div>
         </div>
